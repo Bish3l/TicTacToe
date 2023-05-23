@@ -1,0 +1,8 @@
+@import '../../constants.css';
+
+.display {
+    height: 13vh;
+    min-height: 100px;
+    width: 100%;
+    background-color: var(--primary-color);
+}
