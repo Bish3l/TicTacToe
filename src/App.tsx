@@ -11,7 +11,8 @@ export interface GameState {
   X: string[];
   X_score:number;
   isGameEnded: boolean;
-  winner:"O"|"X"|null
+  winner:"O"|"X"|null,
+  winningCombination:string[]|null
 }
 
 type Action = {
@@ -44,7 +45,8 @@ const initialState: GameState = {
   X: [],
   X_score: 0,
   isGameEnded: false,
-  winner: null
+  winner: null,
+  winningCombination: null,
 };
 
 // Helper Functions
@@ -56,6 +58,15 @@ function containsAll(needle: string[], haystack: string[]): boolean {
     }
   }
   return true;
+}
+
+function flipACoin(): "heads" | "tails" {
+  const num = Math.random();
+  if (num > 0.5) {
+    return "tails";
+  } else {
+    return "heads";
+  }
 }
 
 // Reducer
@@ -103,14 +114,16 @@ const reducer = (state: GameState, action: Action): GameState => {
                 ...state,
                 O_score: state.O_score + 1,
                 isGameEnded: true,
-                winner: "O"
+                winner: "O",
+                winningCombination: winningCombinations[i],
               };
             } else {
               return {
                 ...state,
                 X_score: state.X_score + 1,
                 isGameEnded: true,
-                winner: "X"
+                winner: "X",
+                winningCombination: winningCombinations[i],
               };
             }
           }
@@ -120,6 +133,7 @@ const reducer = (state: GameState, action: Action): GameState => {
           return {
             ...state,
             isGameEnded: true,
+            winner: null,
           };
         }
       }
@@ -127,11 +141,20 @@ const reducer = (state: GameState, action: Action): GameState => {
     case "new_game":
       // Loser will make the first turn next game
       let firstTurn:"O"|"X"|null = null;
-      if (state.winner == "X") {
+      if (state.winner === "X") {
         firstTurn = "O";
       }
-      else {
+      else if (state.winner === "O") {
         firstTurn = "X";
+      }
+      else {
+        // Draw
+        if (flipACoin() === "heads") {
+          firstTurn = "X";
+        }
+        else {
+          firstTurn = "O";
+        }
       }
       return {
         ...initialState,

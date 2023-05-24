@@ -13,6 +13,10 @@ h1 {
     grid-template-rows: repeat(3, 160px);
 }
 
+.game-grid.clickable:hover {
+    cursor:pointer;
+}
+
 .game-grid-cell {
     background-color: var(--background-color);
     font-family: var(--primary-font);
@@ -23,7 +27,11 @@ h1 {
     position: relative;
 }
 
-.game-grid-cell:hover {
+.game-grid-cell.winning-cell * {
+    animation: 0.4s flash linear 3;
+}
+
+.game-grid-cell-contents:hover {
     cursor: pointer;
 }
 
@@ -38,8 +46,8 @@ h1 {
     border: 12px solid var(--primary-darker-color);
     border-radius: 50%;
 
-    transform: scale(0);
-    animation: 0.25s scaleIn ease forwards;
+    /* Animation */
+    animation: 0.2s scaleIn ease forwards;
 }
 
 .X-cell {
@@ -47,6 +55,9 @@ h1 {
     top: 38%;
     width: 120px;
     height: 120px;
+    
+    /* Animation */
+    animation: 0.2s scaleIn ease forwards;
 }
 
 .X-cell::before {
@@ -85,9 +96,23 @@ h1 {
 
 @keyframes scaleIn {
     from {
-        transform: scale(0);
+        opacity: 0.4;
+        transform: scale(0.25)
     }
     to {
+        opacity: 1;
         transform: scale(1);
+    }
+}
+
+@keyframes flash {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
     }
 }

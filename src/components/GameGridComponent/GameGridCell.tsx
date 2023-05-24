@@ -29,7 +29,19 @@ const GameGridCell = (props: Props) => {
     }
   }
 
-  return <div className="game-grid-cell">{showContent()}</div>;
+  // If game ended and a cell is a part of winning combinations, then it'll be flashing for a couple of seconds to indicate win
+  function showCell() {
+    if (
+      context.state.isGameEnded &&
+      context.state.winningCombination?.indexOf(props.id.toString()) !== -1 &&
+      context.state.winner !== null
+    ) {
+      return <div className="game-grid-cell winning-cell">{showContent()}</div>
+    }
+    return <div className="game-grid-cell">{showContent()}</div>;
+  }
+
+  return showCell();
 };
 
 export default GameGridCell;
