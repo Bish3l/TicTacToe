@@ -16,8 +16,12 @@
     --primary-darker-color: #2F8B90;
     --secondary-color: #F6416C;
     --light-color: #FFFFFF;
-    --gray-color: #676767;
+    --gray-color: #4e4e4e;
     --dark-color: #000000;
     --background-color: #F8F3D4;
 
+}
+
+* {
+    box-sizing: border-box;
 }

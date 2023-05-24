@@ -1,8 +1,154 @@
 @import '../../constants.css';
 
+:root {
+    --display-default-padding: 256px;
+    --off-animation-time: 0.5s;
+}
+
 .display {
     height: 13vh;
-    min-height: 100px;
+    min-height: 130px;
     width: 100%;
     background-color: var(--primary-color);
+    padding: 0 var(--display-default-padding);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: var(--primary-font);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Scoreboard styles*/
+
+.scoreboard {
+    color: white;
+    /* Height creates additional spacing between two elements*/
+    height: 50%;
+    font-size: var(--font-md);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 80px;
+    align-items: center;
+}
+
+.scoreboard * {
+    height: 20%;
+}
+
+/*TurnDisplay styles*/
+
+.turn-left, .turn-right {
+    position: absolute;
+    color: white;
+    font-size: var(--font-sm);
+}
+.turn-left {
+    top: 70px;
+    left: calc(var(--display-default-padding) - 9px);
+}
+.turn-right {
+    top: 70px;
+    right: calc(var(--display-default-padding) - 4px);
+}
+
+.turn-left.off, .turn-right.off {
+    animation: var(--off-animation-time) fromLightToGrayText ease forwards;
+}
+
+
+.O, .X {
+    height: 100%;
+    position: absolute;
+}
+
+.O {
+    width: 50px;
+    height: 50px;
+    border: 8px solid var(--light-color);
+    border-radius: 50%;
+
+    left: var(--display-default-padding);
+    top: 20px;
+
+}
+
+/* Off element makes display go gray when it's the opposite player turn*/
+.O.off {
+    animation: var(--off-animation-time) fromLightToGrayBorder ease forwards;
+}
+
+.X {
+    width: 60px;
+    right: var(--display-default-padding);
+    top: 30px;
+}
+
+/* Before and after elements create an X itself */
+
+.X::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 8px;
+    border-radius: 3px;
+    transform: rotate(45deg) translateX(7px) translateY(4px); 
+    background-color: var(--light-color);
+}
+.X.off::before {
+    animation: var(--off-animation-time) fromLightToGrayBG ease forwards;
+}
+.X::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 8px;
+    border-radius: 3px;
+    transform: rotate(-45deg);
+    background-color: var(--light-color);
+}
+.X.off::after {
+    animation: var(--off-animation-time) fromLightToGrayBG ease forwards;
+}
+
+@media only screen and (max-width: 1082px) {
+    :root {
+        --display-default-padding: 128px;
+    }
+}
+@media only screen and (max-width: 720px) {
+    :root {
+        --display-default-padding: 64px;
+    }
+}
+
+@keyframes fromLightToGrayBG {
+    from {
+        background-color: var(--light-color);
+    }
+    to {
+        background-color: var(--gray-color);
+    }
+}
+
+@keyframes fromLightToGrayBorder {
+    from {
+        border: 8px solid var(--light-color);
+    }
+    to {
+        border: 8px solid var(--gray-color);
+    }
+}
+
+@keyframes fromLightToGrayText {
+    from {
+        color: var(--light-color);
+    }
+    to {
+        color: var(--gray-color)
+    }
 }

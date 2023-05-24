@@ -7,8 +7,11 @@ import "./App.css";
 export interface GameState {
   currentTurn: "O" | "X";
   O: string[];
+  O_score:number;
   X: string[];
+  X_score:number;
   isGameEnded: boolean;
+  winner:"O"|"X"|null
 }
 
 type Action = {
@@ -37,8 +40,11 @@ const initialState: GameState = {
   currentTurn: "X",
   // These two arrays will store the information about the squares each player holds
   O: [],
+  O_score: 0,
   X: [],
+  X_score: 0,
   isGameEnded: false,
+  winner: null
 };
 
 // Helper Functions
@@ -76,34 +82,63 @@ const reducer = (state: GameState, action: Action): GameState => {
       }
       throw new Error("No matching state.CurrentTurn in reducer");
     case "check_winner":
-      // Check winner will be called after the turn is passed to second player, but we are checking the player who just made the turn
-      let player: "O" | "X";
-      if (state.currentTurn === "X") {
-        player = "O";
-      } else {
-        player = "X";
-      }
-      const occupiedCells = state[player];
+      if (state.isGameEnded === false) {
+        // Check winner will be called after the turn is passed to second player, but we are checking the player who just made the turn
+        let player: "O" | "X";
+        let playerScore: number | null = null;
+        if (state.currentTurn === "X") {
+          player = "O";
+          playerScore = state.O_score;
+        } else {
+          player = "X";
+          playerScore = state.X_score;
+        }
+        const occupiedCells = state[player];
 
-      // Check if player's occupied cells contain winning combination cells; if so - we have a winner!
-      for (let i = 0; i < winningCombinations.length; i++) {
-        if (containsAll(winningCombinations[i], occupiedCells)) {
+        // Check if player's occupied cells contain winning combination cells; if so - we have a winner!
+        for (let i = 0; i < winningCombinations.length; i++) {
+          if (containsAll(winningCombinations[i], occupiedCells)) {
+            if (player === "O") {
+              return {
+                ...state,
+                O_score: state.O_score + 1,
+                isGameEnded: true,
+                winner: "O"
+              };
+            } else {
+              return {
+                ...state,
+                X_score: state.X_score + 1,
+                isGameEnded: true,
+                winner: "X"
+              };
+            }
+          }
+        }
+        // If all cells are filled, but we have no winner - it is a draw
+        if (state.X.length + state.O.length === 9) {
           return {
             ...state,
             isGameEnded: true,
           };
         }
       }
-      // If all cells are filled, but we have no winner - it is a draw
-      if (state.X.length + state.O.length === 9) {
-        return {
-          ...state,
-          isGameEnded: true,
-        };
-      }
       return state;
     case "new_game":
-      return initialState;
+      // Loser will make the first turn next game
+      let firstTurn:"O"|"X"|null = null;
+      if (state.winner == "X") {
+        firstTurn = "O";
+      }
+      else {
+        firstTurn = "X";
+      }
+      return {
+        ...initialState,
+        O_score: state.O_score,
+        X_score: state.X_score,
+        currentTurn: firstTurn
+      };
     default:
       throw new Error("Didn't find matching action type");
   }
