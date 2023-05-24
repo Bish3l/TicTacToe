@@ -92,6 +92,17 @@ h1 {
         grid-template-columns: repeat(3, 80px);
         grid-template-rows: repeat(3, 80px);
     }
+    .O-cell {
+        border: 8px solid var(--primary-darker-color);
+    }
+    .X-cell::before {
+        width: 70%;
+        height: 8px;
+    }
+    .X-cell::after {
+        width: 70%;
+        height: 8px;
+    }
 }
 
 @keyframes scaleIn {
