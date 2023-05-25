@@ -15,11 +15,14 @@
     --primary-color: #00B8A9;
     --primary-darker-color: #2F8B90;
     --secondary-color: #F6416C;
+    --secondary-darker-color: #c92f53;
     --light-color: #FFFFFF;
     --gray-color: #4e4e4e;
     --dark-color: #000000;
     --background-color: #F8F3D4;
 
+    /* Spacing */
+    --display-default-padding: 256px;
 }
 
 * {

@@ -50,6 +50,7 @@ const initialState: GameState = {
 };
 
 // Helper Functions
+
 // This function checks if haystack array contains all elements from needle array
 function containsAll(needle: string[], haystack: string[]): boolean {
   for (let i = 0; i < needle.length; i++) {
@@ -140,19 +141,16 @@ const reducer = (state: GameState, action: Action): GameState => {
       return state;
     case "new_game":
       // Loser will make the first turn next game
-      let firstTurn:"O"|"X"|null = null;
+      let firstTurn: "O" | "X" | null = null;
       if (state.winner === "X") {
         firstTurn = "O";
-      }
-      else if (state.winner === "O") {
+      } else if (state.winner === "O") {
         firstTurn = "X";
-      }
-      else {
+      } else {
         // Draw
         if (flipACoin() === "heads") {
           firstTurn = "X";
-        }
-        else {
+        } else {
           firstTurn = "O";
         }
       }
@@ -160,7 +158,7 @@ const reducer = (state: GameState, action: Action): GameState => {
         ...initialState,
         O_score: state.O_score,
         X_score: state.X_score,
-        currentTurn: firstTurn
+        currentTurn: firstTurn,
       };
     default:
       throw new Error("Didn't find matching action type");

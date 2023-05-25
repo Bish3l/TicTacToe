@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { GameState, GameContext } from "../../App";
+import { GameContext } from "../../App";
 import './grid.css'
 
 interface Props {
@@ -16,9 +16,9 @@ const GameGridCell = (props: Props) => {
 
   function showContent() {
     // Showing content depending if it is occupied by X or O
-    if (context.state.O.indexOf(props.id) != -1) {
+    if (context.state.O.indexOf(props.id) !== -1) {
       return <div className="O-cell"/>;
-    } else if (context.state.X.indexOf(props.id) != -1) {
+    } else if (context.state.X.indexOf(props.id) !== -1) {
       return <div className="X-cell"/>;
     }
     // Return clickable div if cell is not occupied

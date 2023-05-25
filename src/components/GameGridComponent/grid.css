@@ -5,7 +5,7 @@ h1 {
 
 .game-grid {
     background-color: var(--primary-color);
-    margin-top: 150px;
+    margin-top: 20vh;
 
     display: grid;
     grid-gap: 12px;
@@ -79,31 +79,58 @@ h1 {
     background-color: var(--primary-darker-color);
 }
 
+/* Width media queries*/
 @media only screen and (max-width: 748px) {
     .game-grid {
-        margin-top: 190px;
         grid-template-columns: repeat(3, 120px);
         grid-template-rows: repeat(3, 120px);
+    }
+    .O-cell {
+        border: 10px solid var(--primary-darker-color);
+    }
+    .X-cell {
+        top: 38%;
+        width: 100px;
+        height: 100px;
+    }
+    .X-cell::before {
+        height: 10px;
+        transform: rotate(45deg) translateX(8px) translateY(7px); 
+    }
+    .X-cell::after {
+        height: 10px;
     }
 }
 @media only screen and (max-width: 424px) {
     .game-grid {
-        margin-top: 230px;
         grid-template-columns: repeat(3, 80px);
         grid-template-rows: repeat(3, 80px);
+        grid-gap: 8px;
     }
     .O-cell {
+        height: 65%;
+        width: 65%;
         border: 8px solid var(--primary-darker-color);
     }
+    .X-cell {
+        top: 38%;
+        width: 60px;
+        height: 60px;
+    }
     .X-cell::before {
-        width: 70%;
         height: 8px;
+        transform: rotate(45deg) translateX(6px) translateY(6px); 
     }
     .X-cell::after {
-        width: 70%;
         height: 8px;
     }
 }
+
+@media only screen and (min-height: 900px) and (min-width: 940px) {
+    .game-grid {
+        margin-top: 16vh;
+    }
+} 
 
 @keyframes scaleIn {
     from {
