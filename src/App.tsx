@@ -1,4 +1,4 @@
-import React, { useReducer, useContext } from "react";
+import React, { useReducer, useState } from "react";
 import GameGrid from "./components/GameGridComponent/GameGrid";
 import Display from "./components/DisplayComponent/Display";
 import "./App.css";
@@ -11,6 +11,7 @@ export interface GameState {
   O_score: number;
   X: string[];
   X_score: number;
+  hideEntryScreen:boolean;
   isGameStarted: boolean;
   isRoundEnded: boolean;
   winner: "O" | "X" | null;
@@ -46,7 +47,9 @@ var initialState: GameState = {
   O_score: 0,
   X: [],
   X_score: 0,
+  // isGameStarted: true shows the game fields, hideEntryScreen hides entry screen.
   isGameStarted: false,
+  hideEntryScreen: false,
   isRoundEnded: false,
   winner: null,
   winningCombination: null,
@@ -137,6 +140,8 @@ const reducer = (state: GameState, action: Action): GameState => {
           return {
             ...state,
             isRoundEnded: true,
+            O_score: state.O_score + 0.5,
+            X_score: state.X_score + 0.5,
             winner: null,
           };
         }
@@ -164,6 +169,8 @@ const reducer = (state: GameState, action: Action): GameState => {
         currentTurn: firstTurn,
       };
     case "start_game":
+      return {...initialState, isGameStarted: true};
+    case "hide_entry_screen":
       initialState = {
         currentTurn: "X",
         // These two arrays will store the information about the squares each player holds
@@ -172,6 +179,7 @@ const reducer = (state: GameState, action: Action): GameState => {
         X: [],
         X_score: 0,
         isGameStarted: true,
+        hideEntryScreen: true,
         isRoundEnded: false,
         winner: null,
         winningCombination: null,
@@ -186,14 +194,14 @@ export const GameContext = React.createContext<Context | null>(null);
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  
   return (
     <GameContext.Provider value={{ dispatch, state }}>
-      <div className={state.isGameStarted ? "hidden" : "entry-screen"}>
-        <div className="header">Tic Tac Toe</div>
+      <div className={state.hideEntryScreen ? "hidden" : "entry-screen"}>
+        <div className={state.isGameStarted ? "header scale-out" : "header"}>Tic Tac Toe</div>
         <NewGameButton />
       </div>
-      <div className={state.isGameStarted ? "game-screen" : "hidden"}>
+      <div className={state.hideEntryScreen ? "game-screen" : "hidden"}>
         <Display />
         <GameGrid />
       </div>

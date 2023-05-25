@@ -11,6 +11,12 @@ h1 {
     grid-gap: 12px;
     grid-template-columns: repeat(3, 160px);
     grid-template-rows: repeat(3, 160px);
+
+    /* Animation */
+    opacity: 0;
+    transform: scale(0);
+    animation: 1s showGrid ease forwards;
+    animation-delay: 0.5s;
 }
 
 .game-grid.clickable:hover {
@@ -152,5 +158,16 @@ h1 {
     }
     100% {
         opacity: 1;
+    }
+}
+
+@keyframes showGrid {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }

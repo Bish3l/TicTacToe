@@ -19,6 +19,9 @@
     font-family: var(--primary-font);
     position: relative;
     overflow: hidden;
+
+    /* Animation */
+    animation: 1s showDisplay ease forwards;
 }
 
 /* Scoreboard styles*/
@@ -192,5 +195,16 @@
     }
     to {
         color: var(--gray-color)
+    }
+}
+
+@keyframes showDisplay {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

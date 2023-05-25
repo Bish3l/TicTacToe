@@ -29,3 +29,16 @@
 .hidden {
     display: none;
 }
+
+.scale-out {
+    animation: 0.4s scaleOut ease-in-out forwards;
+}
+
+@keyframes scaleOut {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(0);
+    }
+}
