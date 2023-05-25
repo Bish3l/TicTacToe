@@ -2,17 +2,19 @@ import React, { useReducer, useContext } from "react";
 import GameGrid from "./components/GameGridComponent/GameGrid";
 import Display from "./components/DisplayComponent/Display";
 import "./App.css";
+import NewGameButton from "./components/NewGameButtonComponent/NewGameButton";
 
 // Interfaces & Types
 export interface GameState {
   currentTurn: "O" | "X";
   O: string[];
-  O_score:number;
+  O_score: number;
   X: string[];
-  X_score:number;
-  isGameEnded: boolean;
-  winner:"O"|"X"|null,
-  winningCombination:string[]|null
+  X_score: number;
+  isGameStarted: boolean;
+  isRoundEnded: boolean;
+  winner: "O" | "X" | null;
+  winningCombination: string[] | null;
 }
 
 type Action = {
@@ -37,14 +39,15 @@ const winningCombinations = [
   ["3", "5", "7"],
 ];
 
-const initialState: GameState = {
+var initialState: GameState = {
   currentTurn: "X",
   // These two arrays will store the information about the squares each player holds
   O: [],
   O_score: 0,
   X: [],
   X_score: 0,
-  isGameEnded: false,
+  isGameStarted: false,
+  isRoundEnded: false,
   winner: null,
   winningCombination: null,
 };
@@ -93,8 +96,8 @@ const reducer = (state: GameState, action: Action): GameState => {
         };
       }
       throw new Error("No matching state.CurrentTurn in reducer");
-    case "check_winner":
-      if (state.isGameEnded === false) {
+    case "check_round_winner":
+      if (state.isRoundEnded === false) {
         // Check winner will be called after the turn is passed to second player, but we are checking the player who just made the turn
         let player: "O" | "X";
         let playerScore: number | null = null;
@@ -114,7 +117,7 @@ const reducer = (state: GameState, action: Action): GameState => {
               return {
                 ...state,
                 O_score: state.O_score + 1,
-                isGameEnded: true,
+                isRoundEnded: true,
                 winner: "O",
                 winningCombination: winningCombinations[i],
               };
@@ -122,7 +125,7 @@ const reducer = (state: GameState, action: Action): GameState => {
               return {
                 ...state,
                 X_score: state.X_score + 1,
-                isGameEnded: true,
+                isRoundEnded: true,
                 winner: "X",
                 winningCombination: winningCombinations[i],
               };
@@ -133,14 +136,14 @@ const reducer = (state: GameState, action: Action): GameState => {
         if (state.X.length + state.O.length === 9) {
           return {
             ...state,
-            isGameEnded: true,
+            isRoundEnded: true,
             winner: null,
           };
         }
       }
       return state;
-    case "new_game":
-      // Loser will make the first turn next game
+    case "new_round":
+      // Loser will make the first turn next round
       let firstTurn: "O" | "X" | null = null;
       if (state.winner === "X") {
         firstTurn = "O";
@@ -160,6 +163,20 @@ const reducer = (state: GameState, action: Action): GameState => {
         X_score: state.X_score,
         currentTurn: firstTurn,
       };
+    case "start_game":
+      initialState = {
+        currentTurn: "X",
+        // These two arrays will store the information about the squares each player holds
+        O: [],
+        O_score: 0,
+        X: [],
+        X_score: 0,
+        isGameStarted: true,
+        isRoundEnded: false,
+        winner: null,
+        winningCombination: null,
+      };
+      return initialState;
     default:
       throw new Error("Didn't find matching action type");
   }
@@ -172,7 +189,11 @@ function App() {
 
   return (
     <GameContext.Provider value={{ dispatch, state }}>
-      <div className="main-container">
+      <div className={state.isGameStarted ? "hidden" : "entry-screen"}>
+        <div className="header">Tic Tac Toe</div>
+        <NewGameButton />
+      </div>
+      <div className={state.isGameStarted ? "game-screen" : "hidden"}>
         <Display />
         <GameGrid />
       </div>

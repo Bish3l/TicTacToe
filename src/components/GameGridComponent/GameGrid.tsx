@@ -5,41 +5,32 @@ import "./grid.css";
 
 // Component
 const GameGrid = () => {
-  const props = useContext(GameContext)!;
-  
+  const context = useContext(GameContext)!;
+
   // Creating 9 cells to fill up the grid
-  let cells:any = [];
+  let cells: any = [];
   for (let i = 1; i < 10; i++) {
     cells.push(<Cell key={i.toString()} id={i.toString()} />);
   }
 
-  function restartGame() {
-    if (props.state.isGameEnded === true) {
-      props.dispatch({ type: "new_game", payload: "" });
+  function newRound() {
+    if (context.state.isRoundEnded === true) {
+      context.dispatch({ type: "new_round", payload: "" });
     }
   }
   function showGrid() {
-    if (props.state.isGameEnded === true) {
+    if (context.state.isRoundEnded === true) {
       return (
-        <div className="game-grid clickable" onClick={restartGame}>
+        <div className="game-grid clickable" onClick={newRound}>
           {cells}
         </div>
-      )
-    }
-    else {
-      return (
-        <div className="game-grid">
-          {cells}
-        </div>
-      )
+      );
+    } else {
+      return <div className="game-grid">{cells}</div>;
     }
   }
 
-  return (
-    <>
-      {showGrid()}
-    </>
-  );
+  return <>{showGrid()}</>;
 };
 
 export default GameGrid;

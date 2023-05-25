@@ -1,6 +1,6 @@
 @import './constants.css';
 
-.main-container {
+.game-screen {
     background-color: var(--background-color);
 
     width: 100%;
@@ -9,4 +9,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.entry-screen {
+    width: 100%;
+    height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+    font-size: var(--font-lg);
+    font-family: var(--secondary-font);
+}
+
+.hidden {
+    display: none;
 }
