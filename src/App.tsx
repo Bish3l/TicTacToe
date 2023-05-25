@@ -1,8 +1,9 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import GameGrid from "./components/GameGridComponent/GameGrid";
 import Display from "./components/DisplayComponent/Display";
 import "./App.css";
 import NewGameButton from "./components/NewGameButtonComponent/NewGameButton";
+import { randomInt } from "crypto";
 
 // Interfaces & Types
 export interface GameState {
@@ -14,6 +15,8 @@ export interface GameState {
   hideEntryScreen:boolean;
   isGameStarted: boolean;
   isRoundEnded: boolean;
+  playingWithBot: boolean;
+  botPlayingWith: "O"|"X";
   winner: "O" | "X" | null;
   winningCombination: string[] | null;
 }
@@ -50,6 +53,8 @@ var initialState: GameState = {
   // isGameStarted: true shows the game fields, hideEntryScreen hides entry screen.
   isGameStarted: false,
   hideEntryScreen: false,
+  playingWithBot: true,
+  botPlayingWith: "X",
   isRoundEnded: false,
   winner: null,
   winningCombination: null,
@@ -74,6 +79,11 @@ function flipACoin(): "heads" | "tails" {
   } else {
     return "heads";
   }
+}
+
+function randomElementFromArray<T>(arr: T[]):T {
+  let randNum = Math.floor(Math.random() * arr.length);
+  return arr[randNum];
 }
 
 // Reducer
@@ -171,18 +181,19 @@ const reducer = (state: GameState, action: Action): GameState => {
     case "start_game":
       return {...initialState, isGameStarted: true};
     case "hide_entry_screen":
+      // Player will always make first turn of the entire game
+      let gameFirstTurn:"O"|"X";
+      if (state.botPlayingWith === "O") {
+        gameFirstTurn = "X";
+      }
+      else {
+        gameFirstTurn = "O";
+      }
       initialState = {
-        currentTurn: "X",
-        // These two arrays will store the information about the squares each player holds
-        O: [],
-        O_score: 0,
-        X: [],
-        X_score: 0,
-        isGameStarted: true,
+        ...initialState,
+        currentTurn: gameFirstTurn,
         hideEntryScreen: true,
-        isRoundEnded: false,
-        winner: null,
-        winningCombination: null,
+        isGameStarted: true,
       };
       return initialState;
     default:
@@ -194,11 +205,71 @@ export const GameContext = React.createContext<Context | null>(null);
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Computer moves logic
+  useEffect(() => {
+    console.log(state);
+    // Check if it's computer's move
+    if (state.playingWithBot && state.currentTurn == state.botPlayingWith && !state.isRoundEnded && state.hideEntryScreen) {
+      // Set a timeout so he doesn't make his move instantly
+      setTimeout(() => {
+        let pickedCell:string = "";
+        let computerOccupiedCells:string[];
+        if (state.botPlayingWith === "X") {
+          computerOccupiedCells = state.X;
+        }
+        else {
+          computerOccupiedCells = state.O;
+        }
+        let availableCells: string[] = [];
+        for (let i = 1; i < 10; i++) {
+          if (
+            state.O.indexOf(i.toString()) === -1 &&
+            state.X.indexOf(i.toString()) === -1
+          ) {
+            availableCells.push(i.toString());
+          }
+        }
+
+        // If computer is 1 turn away from winning, he won't miss it!
+        // Iterate through all winning combinations
+        for (let i = 0; i < winningCombinations.length; i++) {    
+          // See which exactly winning combination cells are occupied
+          let matchingCells:string[] = [];
+
+          // Iterate through all computer's occupied cells 
+          for (let j = 0; j < computerOccupiedCells.length; j++) {
+              // Check if winning combination contains one of computer's occupied cells
+              if (winningCombinations[i].indexOf(computerOccupiedCells[j]) !== -1) {
+                matchingCells.push(computerOccupiedCells[j]);
+                if (matchingCells.length === 2) {
+
+                  // Find a 3rd piece of winning combination if it's available
+                  for (let k = 0; k < winningCombinations[i].length; k++) {
+                    if (winningCombinations[i][k] !== matchingCells[0] && winningCombinations[i][k] !== matchingCells[1] && availableCells.indexOf(winningCombinations[i][k]) !== -1) {
+                      pickedCell = winningCombinations[i][k];
+                    }
+                  }
+                }
+              }
+          }
+        }
+
+        if (pickedCell === "") {
+          pickedCell = randomElementFromArray(availableCells);
+        }
+
+
+        dispatch({ type: "register_turn", payload: pickedCell });
+        dispatch({ type: "check_round_winner", payload: "" });
+      }, 400);
+    }
+  })
   
   return (
     <GameContext.Provider value={{ dispatch, state }}>
-      <div className={state.hideEntryScreen ? "hidden" : "entry-screen"}>
-        <div className={state.isGameStarted ? "header scale-out" : "header"}>Tic Tac Toe</div>
+      <div className={state.hideEntryScreen ? "hidden" : "entry-screen scale-in"}>
+        <div className={state.isGameStarted ? "header scale-out" : "header scale-in"}>Tic Tac Toe</div>
         <NewGameButton />
       </div>
       <div className={state.hideEntryScreen ? "game-screen" : "hidden"}>

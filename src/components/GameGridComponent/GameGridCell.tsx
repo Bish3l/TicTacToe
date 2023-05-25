@@ -10,8 +10,11 @@ const GameGridCell = (props: Props) => {
   const context = useContext(GameContext)!;
 
   function handleClick() {
-    context.dispatch({ type: "register_turn", payload: props.id });
-    context.dispatch({ type: "check_round_winner", payload: "" });
+    // Click is available only if this isn't a bot's turn OR player is playing without a bot
+    if (context.state.playingWithBot == false || context.state.currentTurn !== context.state.botPlayingWith) {
+      context.dispatch({ type: "register_turn", payload: props.id });
+      context.dispatch({ type: "check_round_winner", payload: "" });
+    }
   }
 
   function showContent() {
