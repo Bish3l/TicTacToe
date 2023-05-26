@@ -1,6 +1,8 @@
 @import '../../constants.css';
 
-.newGameBtn {
+
+
+.gameStartBtn {
     margin-top: 30px;
     font-family: var(--primary-font);
     font-size: var(--font-sm);
@@ -14,12 +16,18 @@
     transition: all 0.5s ease, background-color 0s;
 }
 
-.newGameBtn:hover {
+.gameStartBtn:hover {
     cursor: pointer;
     transform: translateY(-6px);
     box-shadow: rgba(0, 0, 0, 0.15) 0px 6px 6px 0px;
 }
 
-.newGameBtn:active {
+.gameStartBtn:active {
     background-color: var(--primary-darker-color);
+}
+
+@media only screen and (max-width: 328px) {
+    .gameStartBtn {
+        font-size: var(--font-xs);
+    }
 }

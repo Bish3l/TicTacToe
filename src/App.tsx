@@ -2,7 +2,7 @@ import React, { useReducer, useState, useEffect } from "react";
 import GameGrid from "./components/GameGridComponent/GameGrid";
 import Display from "./components/DisplayComponent/Display";
 import "./App.css";
-import NewGameButton from "./components/NewGameButtonComponent/NewGameButton";
+import NewGameButtons from "./components/ButtonComponents/NewGameButtons";
 import { randomInt } from "crypto";
 
 // Interfaces & Types
@@ -16,7 +16,7 @@ export interface GameState {
   isGameStarted: boolean;
   isRoundEnded: boolean;
   playingWithBot: boolean;
-  botDifficulty:"Easy"|"Medium"|"Hard",
+  botDifficulty:"Easy"|"Medium"|"Hard"|"Unbeatable",
   botPlayingWith: "O"|"X";
   winner: "O" | "X" | null;
   winningCombination: string[] | null;
@@ -46,18 +46,17 @@ const winningCombinations = [
 
 var initialState: GameState = {
   currentTurn: "X",
-  // These two arrays will store the information about the squares each player holds
+  // O and X arrays will store information about cells every player holds
   O: [],
   O_score: 0,
   X: [],
   X_score: 0,
-  // isGameStarted: true shows the game fields, hideEntryScreen hides entry screen.
   isGameStarted: false,
+  isRoundEnded: false,
   hideEntryScreen: false,
-  playingWithBot: true,
+  playingWithBot: false,
   botPlayingWith: "X",
   botDifficulty: "Hard",
-  isRoundEnded: false,
   winner: null,
   winningCombination: null,
 };
@@ -74,6 +73,7 @@ function containsAll(needle: string[], haystack: string[]): boolean {
   return true;
 }
 
+// Delete this ?
 function flipACoin(): "heads" | "tails" {
   const num = Math.random();
   if (num > 0.5) {
@@ -86,6 +86,10 @@ function flipACoin(): "heads" | "tails" {
 function randomElementFromArray<T>(arr: T[]):T {
   let randNum = Math.floor(Math.random() * arr.length);
   return arr[randNum];
+}
+
+function minMaxAlgorithm():string {
+  return "";
 }
 
 // Reducer
@@ -160,42 +164,45 @@ const reducer = (state: GameState, action: Action): GameState => {
       }
       return state;
     case "new_round":
-      // Loser will make the first turn next round
-      let firstTurn: "O" | "X" | null = null;
-      if (state.winner === "X") {
-        firstTurn = "O";
-      } else if (state.winner === "O") {
-        firstTurn = "X";
-      } else {
-        // Draw
-        if (flipACoin() === "heads") {
-          firstTurn = "X";
-        } else {
-          firstTurn = "O";
-        }
-      }
       return {
         ...initialState,
         O_score: state.O_score,
         X_score: state.X_score,
-        currentTurn: firstTurn,
+        // This line swaps turns between 2 players
+        currentTurn: state.currentTurn,
       };
     case "start_game":
-      return {...initialState, isGameStarted: true};
+      if (action.payload === "1") {
+        let gameFirstTurn: "O" | "X";
+        if (state.botPlayingWith === "O") {
+          gameFirstTurn = "X";
+        } else {
+          gameFirstTurn = "O";
+        }
+        initialState = {
+          ...initialState,
+          isGameStarted: true,
+          playingWithBot: true,
+          currentTurn: gameFirstTurn,
+        };
+        return {
+          ...initialState,
+        };
+      }
+      else if (action.payload === "2") {
+        return {
+          ...initialState,
+          isGameStarted: true,
+          playingWithBot: true,
+          currentTurn: "X",
+        };
+      }
+      throw new Error ("Invalid action payload in start_game action");
     case "hide_entry_screen":
       // Player will always make first turn of the entire game
-      let gameFirstTurn:"O"|"X";
-      if (state.botPlayingWith === "O") {
-        gameFirstTurn = "X";
-      }
-      else {
-        gameFirstTurn = "O";
-      }
       initialState = {
         ...initialState,
-        currentTurn: gameFirstTurn,
         hideEntryScreen: true,
-        isGameStarted: true,
       };
       return initialState;
     default:
@@ -210,37 +217,39 @@ function App() {
 
   // Computer moves logic
   useEffect(() => {
-    console.log(state);
     // Check if it's computer's move
-    if (state.playingWithBot && state.currentTurn == state.botPlayingWith && !state.isRoundEnded && state.hideEntryScreen) {
+    if (state.playingWithBot && state.currentTurn === state.botPlayingWith && !state.isRoundEnded && state.hideEntryScreen) {
+      // Initializing code
+      let pickedCell: string = "";
+      let computerOccupiedCells: string[];
+      let opponentOccupiedCells: string[];
+      if (state.botPlayingWith === "X") {
+        computerOccupiedCells = state.X;
+        opponentOccupiedCells = state.O;
+      } else {
+        computerOccupiedCells = state.O;
+        opponentOccupiedCells = state.X;
+      }
+      let availableCells: string[] = [];
+      for (let i = 1; i < 10; i++) {
+        if (
+          state.O.indexOf(i.toString()) === -1 &&
+          state.X.indexOf(i.toString()) === -1
+        ) {
+          availableCells.push(i.toString());
+        }
+      }
+
+      // Unbeatable difficulty bot will implement minmax algorithm
+      if (state.botDifficulty === "Unbeatable") {
+
+        return;
+      }
 
       // Set a timeout so he doesn't make his move instantly
       setTimeout(() => {
-        // Easy
-        // Initializing code
-        let pickedCell: string = "";
-        let computerOccupiedCells: string[];
-        let opponentOccupiedCells: string[];
-        if (state.botPlayingWith === "X") {
-          computerOccupiedCells = state.X;
-          opponentOccupiedCells = state.O;
-        } else {
-          computerOccupiedCells = state.O;
-          opponentOccupiedCells = state.X;
-        }
-        let availableCells: string[] = [];
-        for (let i = 1; i < 10; i++) {
-          if (
-            state.O.indexOf(i.toString()) === -1 &&
-            state.X.indexOf(i.toString()) === -1
-          ) {
-            availableCells.push(i.toString());
-          }
-        }
-
-
-        // Medium
-        if (state.botDifficulty === "Medium" || state.botDifficulty == "Hard") {
+          // Medium
+        if (state.botDifficulty === "Medium" || state.botDifficulty === "Hard") {
           // If computer is 1 turn away from winning, he won't miss it!
           // Iterate through all winning combinations
           for (let i = 0; i < winningCombinations.length; i++) {
@@ -255,7 +264,7 @@ function App() {
               ) {
                 matchingCells.push(computerOccupiedCells[j]);
                 if (matchingCells.length === 2) {
-                  // Find a 3rd piece of winning combination if it's available
+                  // Pick a 3rd piece of winning combination if it's available
                   for (let k = 0; k < winningCombinations[i].length; k++) {
                     if (
                       winningCombinations[i][k] !== matchingCells[0] &&
@@ -306,7 +315,7 @@ function App() {
         }
 
         // Medium+ bots will occupy center on the first turn
-        if (state.O.length + state.X.length === 0 && pickedCell == "" && (state.botDifficulty === "Medium" || state.botDifficulty === "Hard")) {
+        if (state.O.length + state.X.length === 0 && pickedCell === "" && (state.botDifficulty === "Medium" || state.botDifficulty === "Hard")) {
           pickedCell = "5";
         }
 
@@ -325,7 +334,7 @@ function App() {
     <GameContext.Provider value={{ dispatch, state }}>
       <div className={state.hideEntryScreen ? "hidden" : "entry-screen scale-in"}>
         <div className={state.isGameStarted ? "header scale-out" : "header scale-in"}>Tic Tac Toe</div>
-        <NewGameButton />
+        <NewGameButtons />
       </div>
       <div className={state.hideEntryScreen ? "game-screen" : "hidden"}>
         <Display />

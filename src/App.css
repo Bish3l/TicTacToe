@@ -20,6 +20,12 @@
     justify-content: center;
     align-items: center;
 }
+.entry-screen-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 460px;
+}
 
 .header {
     font-size: var(--font-lg);
@@ -32,6 +38,19 @@
 
 .scale-out {
     animation: 0.4s scaleOut ease-in-out forwards;
+}
+
+@media only screen and (max-width: 488px) {
+    .entry-screen-buttons {
+        width: auto;
+        flex-direction: column;
+    }
+}
+
+@media only screen and (max-width: 328px) {
+    .header {
+        font-size: 48px;
+    }
 }
 
 @keyframes scaleOut {
