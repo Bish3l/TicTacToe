@@ -1,9 +1,8 @@
-import React, { useReducer, useState, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import GameGrid from "./components/GameGridComponent/GameGrid";
 import Display from "./components/DisplayComponent/Display";
 import "./App.css";
 import NewGameButtons from "./components/ButtonComponents/NewGameButtons";
-import { randomInt } from "crypto";
 
 // Interfaces & Types
 export interface GameState {
@@ -16,7 +15,6 @@ export interface GameState {
   isGameStarted: boolean;
   isRoundEnded: boolean;
   playingWithBot: boolean;
-  botDifficulty:"Easy"|"Medium"|"Hard"|"Unbeatable",
   botPlayingWith: "O"|"X";
   winner: "O" | "X" | null;
   winningCombination: string[] | null;
@@ -56,7 +54,6 @@ var initialState: GameState = {
   hideEntryScreen: false,
   playingWithBot: false,
   botPlayingWith: "X",
-  botDifficulty: "Hard",
   winner: null,
   winningCombination: null,
 };
@@ -73,23 +70,9 @@ function containsAll(needle: string[], haystack: string[]): boolean {
   return true;
 }
 
-// Delete this ?
-function flipACoin(): "heads" | "tails" {
-  const num = Math.random();
-  if (num > 0.5) {
-    return "tails";
-  } else {
-    return "heads";
-  }
-}
-
 function randomElementFromArray<T>(arr: T[]):T {
   let randNum = Math.floor(Math.random() * arr.length);
   return arr[randNum];
-}
-
-function minMaxAlgorithm():string {
-  return "";
 }
 
 // Reducer
@@ -119,13 +102,10 @@ const reducer = (state: GameState, action: Action): GameState => {
       if (state.isRoundEnded === false) {
         // Check winner will be called after the turn is passed to second player, but we are checking the player who just made the turn
         let player: "O" | "X";
-        let playerScore: number | null = null;
         if (state.currentTurn === "X") {
           player = "O";
-          playerScore = state.O_score;
         } else {
           player = "X";
-          playerScore = state.X_score;
         }
         const occupiedCells = state[player];
 
@@ -219,52 +199,72 @@ function App() {
   useEffect(() => {
     // Check if it's computer's move
     if (state.playingWithBot && state.currentTurn === state.botPlayingWith && !state.isRoundEnded && state.hideEntryScreen) {
-      // Initializing code
-      let pickedCell: string = "";
-      let computerOccupiedCells: string[];
-      let opponentOccupiedCells: string[];
-      if (state.botPlayingWith === "X") {
-        computerOccupiedCells = state.X;
-        opponentOccupiedCells = state.O;
-      } else {
-        computerOccupiedCells = state.O;
-        opponentOccupiedCells = state.X;
-      }
-      let availableCells: string[] = [];
-      for (let i = 1; i < 10; i++) {
-        if (
-          state.O.indexOf(i.toString()) === -1 &&
-          state.X.indexOf(i.toString()) === -1
-        ) {
-          availableCells.push(i.toString());
-        }
-      }
-
-      // Unbeatable difficulty bot will implement minmax algorithm
-      if (state.botDifficulty === "Unbeatable") {
-
-        return;
-      }
-
       // Set a timeout so he doesn't make his move instantly
       setTimeout(() => {
-          // Medium
-        if (state.botDifficulty === "Medium" || state.botDifficulty === "Hard") {
-          // If computer is 1 turn away from winning, he won't miss it!
-          // Iterate through all winning combinations
+        // Initializing code
+        let pickedCell: string = "";
+        let computerOccupiedCells: string[];
+        let opponentOccupiedCells: string[];
+        if (state.botPlayingWith === "X") {
+          computerOccupiedCells = state.X;
+          opponentOccupiedCells = state.O;
+        } else {
+          computerOccupiedCells = state.O;
+          opponentOccupiedCells = state.X;
+        }
+        let availableCells: string[] = [];
+        for (let i = 1; i < 10; i++) {
+          if (
+            state.O.indexOf(i.toString()) === -1 &&
+            state.X.indexOf(i.toString()) === -1
+          ) {
+            availableCells.push(i.toString());
+          }
+        }
+        // If computer is 1 turn away from winning, he won't miss it!
+        // Iterate through all winning combinations
+        for (let i = 0; i < winningCombinations.length; i++) {
+          // See which exactly winning combination cells are occupied
+          let matchingCells: string[] = [];
+
+          // Iterate through all computer's occupied cells
+          for (let j = 0; j < computerOccupiedCells.length; j++) {
+            // Check if winning combination contains one of computer's occupied cells
+            if (
+              winningCombinations[i].indexOf(computerOccupiedCells[j]) !== -1
+            ) {
+              matchingCells.push(computerOccupiedCells[j]);
+              if (matchingCells.length === 2) {
+                // Pick a 3rd piece of winning combination if it's available
+                for (let k = 0; k < winningCombinations[i].length; k++) {
+                  if (
+                    winningCombinations[i][k] !== matchingCells[0] &&
+                    winningCombinations[i][k] !== matchingCells[1] &&
+                    availableCells.indexOf(winningCombinations[i][k]) !== -1
+                  ) {
+                    pickedCell = winningCombinations[i][k];
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (pickedCell === "") {
+          // If opponent is 1 turn away from winning, computer will stop him
           for (let i = 0; i < winningCombinations.length; i++) {
             // See which exactly winning combination cells are occupied
             let matchingCells: string[] = [];
 
             // Iterate through all computer's occupied cells
-            for (let j = 0; j < computerOccupiedCells.length; j++) {
-              // Check if winning combination contains one of computer's occupied cells
+            for (let j = 0; j < opponentOccupiedCells.length; j++) {
+              // Check if winning combination contains one of opponent's occupied cells
               if (
-                winningCombinations[i].indexOf(computerOccupiedCells[j]) !== -1
+                winningCombinations[i].indexOf(opponentOccupiedCells[j]) !==
+                -1
               ) {
-                matchingCells.push(computerOccupiedCells[j]);
+                matchingCells.push(opponentOccupiedCells[j]);
                 if (matchingCells.length === 2) {
-                  // Pick a 3rd piece of winning combination if it's available
+                  // Find a 3rd piece of winning combination if it's available
                   for (let k = 0; k < winningCombinations[i].length; k++) {
                     if (
                       winningCombinations[i][k] !== matchingCells[0] &&
@@ -279,43 +279,9 @@ function App() {
             }
           }
         }
-        // Hard
-        if (state.botDifficulty === "Hard") {
-           if (pickedCell === "") {
-             // If opponent is 1 turn away from winning, computer will stop him
-             for (let i = 0; i < winningCombinations.length; i++) {
-               // See which exactly winning combination cells are occupied
-               let matchingCells: string[] = [];
+        
 
-               // Iterate through all computer's occupied cells
-               for (let j = 0; j < opponentOccupiedCells.length; j++) {
-                 // Check if winning combination contains one of opponent's occupied cells
-                 if (
-                   winningCombinations[i].indexOf(opponentOccupiedCells[j]) !==
-                   -1
-                 ) {
-                   matchingCells.push(opponentOccupiedCells[j]);
-                   if (matchingCells.length === 2) {
-                     // Find a 3rd piece of winning combination if it's available
-                     for (let k = 0; k < winningCombinations[i].length; k++) {
-                       if (
-                         winningCombinations[i][k] !== matchingCells[0] &&
-                         winningCombinations[i][k] !== matchingCells[1] &&
-                         availableCells.indexOf(winningCombinations[i][k]) !==
-                           -1
-                       ) {
-                         pickedCell = winningCombinations[i][k];
-                       }
-                     }
-                   }
-                 }
-               }
-             }
-           }
-        }
-
-        // Medium+ bots will occupy center on the first turn
-        if (state.O.length + state.X.length === 0 && pickedCell === "" && (state.botDifficulty === "Medium" || state.botDifficulty === "Hard")) {
+        if (state.O.length + state.X.length === 0 && pickedCell === "") {
           pickedCell = "5";
         }
 
