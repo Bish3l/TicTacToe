@@ -285,7 +285,7 @@ function App() {
           pickedCell = "5";
         }
 
-        // If still no cells picked or bot is on easy mode, pick random cell
+        // If still no cells picked, pick random cell
         if (pickedCell === "") {
           pickedCell = randomElementFromArray(availableCells);
         }
